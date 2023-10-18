@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        #pc-case {
+            width: 600px;
+            height: 400px;
+            border: 2px solid #000;
+            position: relative;
+            margin: 20px auto;
+        }
+
+        .component {
+            width: 50px;
+            height: 50px;
+            background-image: url('path_to_your_image.png'); /* Replace with the path to your component image */
+            background-size: cover;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        /* Define different component styles based on data-component attribute */
+        .component[data-component="cpu"] {
+            background-image: url('cpu_image.png');
+        }
+
+        .component[data-component="gpu"] {
+            background-image: url('gpu_image.png');
+        }
+
+        .component[data-component="ram"] {
+            background-image: url('ram_image.png');
+        }
+
+        .component[data-component="hdd"] {
+            background-image: url('hdd_image.png');
+        }
+
+        .component[data-component="motherboard"] {
+            background-image: url('motherboard_image.png');
+        }
+
+        .component[data-component="psu"] {
+            background-image: url('psu_image.png');
+        }
+
+        #compatibility-message {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #store {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .store-item {
+            border: 2px solid #000;
+            padding: 10px;
+            width: 100px;
+            text-align: center;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>PC Building Simulator</h1>
+
+    <div id="pc-case">
+        <!-- PC case area -->
+    </div>
+
+    <div id="compatibility-message"></div>
+
+    <div id="store">
+        <div class="store-item" data-component="cpu">Buy CPU</div>
+        <div class="store-item" data-component="gpu">Buy GPU</div>
+        <div class="store-item" data-component="ram">Buy RAM</div>
+        <div class="store-item" data-component="hdd">Buy HDD</div>
+        <div class="store-item" data-component="motherboard">Buy Motherboard</div>
+        <div class="store-item" data-component="psu">Buy PSU</div>
+    </div>
+
+    <script>
+        const caseDiv = document.getElementById('pc-case');
+        const compatibilityMessage = document.getElementById('compatibility-message');
+
+        let currentComponents = [];
+
+        caseDiv.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        caseDiv.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const componentType = e.dataTransfer.getData('text');
+            addComponent(componentType);
+        });
+
+        function addComponent(componentType) {
+            if (isCompatible(componentType)) {
+                const newComponent = document.createElement('div');
+                newComponent.className = 'component';
+                newComponent.dataset.component = componentType;
+
+                caseDiv.appendChild(newComponent);
+                currentComponents.push(newComponent);
+                checkCompatibility();
+            }
+        }
+
+        function isCompatible(newComponentType) {
+            const compatibilityRules = {
+                'cpu': ['motherboard'],
+                'gpu': ['motherboard', 'psu'],
+                'ram': ['motherboard'],
+                'hdd': ['motherboard'],
+                'motherboard': [],
+                'psu': ['gpu'],
+            };
+
+            for (const component of currentComponents) {
+                if (!compatibilityRules[component.dataset.component].includes(newComponentType)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function checkCompatibility() {
+            if (currentComponents.length === 0) {
+                compatibilityMessage.textContent = '';
+            } else {
+                const compatibleComponents = currentComponents.map(component => component.dataset.component);
+                compatibilityMessage.textContent = `Current components: ${compatibleComponents.join(', ')}`;
+            }
+        }
+
+        const storeItems = document.querySelectorAll('.store-item');
+
+        storeItems.forEach(storeItem => {
+            storeItem.addEventListener('click', (e) => {
+                const componentType = e.target.dataset.component;
+                addComponent(componentType);
+            });
+        });
+    </script>
+</body>
+</html>
